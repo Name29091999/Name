@@ -36,16 +36,6 @@
             --header-text: #ffffff;
         }
 
-        [data-theme="light"] {
-            --bg-color: #ffffff;
-            --text-color: #000000;
-            --card-bg: #fdfdfd;
-            --border-color: #ced4da;
-            --accent-color: #000000;
-            --header-bg: #000000;
-            --header-text: #ffffff;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -59,7 +49,6 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* Marquee Header */
         .marquee-container {
             background-color: var(--header-bg);
             color: var(--header-text);
@@ -85,7 +74,6 @@
             100% { transform: translateX(-50%); }
         }
 
-        /* Top Navbar */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -118,7 +106,6 @@
             letter-spacing: 1px;
         }
 
-        /* Hero Section */
         .hero-section {
             width: 100%;
             height: 400px;
@@ -133,7 +120,6 @@
             filter: brightness(0.85);
         }
 
-        /* Search & Filter Bar */
         .search-filter-bar {
             max-width: 1200px;
             margin: 20px auto;
@@ -162,7 +148,6 @@
             font-weight: 600;
         }
 
-        /* Drawer Sidebar */
         .drawer {
             position: fixed;
             top: 0;
@@ -219,7 +204,6 @@
             color: var(--text-color);
         }
 
-        /* Filter Modal / Panel */
         .filter-panel {
             max-width: 1200px;
             margin: 0 auto 20px auto;
@@ -286,7 +270,6 @@
             font-weight: bold;
         }
 
-        /* Products Grid */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -361,7 +344,6 @@
 </head>
 <body data-theme="dark">
 
-    <!-- Marquee -->
     <div class="marquee-container">
         <div class="marquee-track">
             NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp; NAME &nbsp;&nbsp;&nbsp;&nbsp;
@@ -369,7 +351,6 @@
         </div>
     </div>
 
-    <!-- Navbar -->
     <header class="navbar">
         <div class="nav-left">
             <button class="menu-btn" onclick="toggleDrawer()">☰</button>
@@ -377,27 +358,30 @@
         </div>
     </header>
 
-    <!-- Hero Image -->
     <section class="hero-section">
         <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1920&q=80" alt="Hero Store" class="hero-img">
     </section>
 
-    <!-- Search & Filter Trigger -->
     <div class="search-filter-bar">
         <input type="text" id="searchInput" class="search-input" placeholder="Пошук за назвою або артикулом..." oninput="filterProducts()">
         <button class="filter-open-btn" onclick="toggleFilterPanel()">Фільтри</button>
     </div>
 
-    <!-- Filter Panel -->
     <div class="filter-panel" id="filterPanel">
         <div class="filter-grid">
             <div class="filter-item">
-                <label>Тип товару</label>
-                <select id="filterCategory" onchange="updateSizesList()">
+                <label>Тип товару (Категорія)</label>
+                <select id="filterCategory" onchange="onCategoryChange()">
                     <option value="">Всі типи</option>
-                    <option value="Одяг">Одяг</option>
                     <option value="Взуття">Взуття</option>
+                    <option value="Одяг">Одяг</option>
                     <option value="Аксесуари">Аксесуари</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>Підкатегорія</label>
+                <select id="filterSubcategory">
+                    <option value="">Всі підкатегорії</option>
                 </select>
             </div>
             <div class="filter-item">
@@ -408,6 +392,18 @@
                     <option value="Adidas">Adidas</option>
                     <option value="Puma">Puma</option>
                     <option value="New Balance">New Balance</option>
+                    <option value="Reebok">Reebok</option>
+                    <option value="ASICS">ASICS</option>
+                    <option value="Under Armour">Under Armour</option>
+                    <option value="Salomon">Salomon</option>
+                    <option value="Converse">Converse</option>
+                    <option value="Vans">Vans</option>
+                    <option value="Crocs">Crocs</option>
+                    <option value="Stone Island">Stone Island</option>
+                    <option value="Carhartt">Carhartt</option>
+                    <option value="Levi's">Levi's</option>
+                    <option value="The North Face">The North Face</option>
+                    <option value="Інше">Інше / Друге</option>
                 </select>
             </div>
             <div class="filter-item">
@@ -426,14 +422,10 @@
         </div>
     </div>
 
-    <!-- Products Section -->
     <main class="container">
-        <div class="products-grid" id="productsGrid">
-            <!-- Products will be loaded from Supabase -->
-        </div>
+        <div class="products-grid" id="productsGrid"></div>
     </main>
 
-    <!-- Drawer Settings Sidebar -->
     <div class="drawer" id="settingsDrawer">
         <div class="drawer-header">
             <span>Налаштування</span>
@@ -445,7 +437,6 @@
                 <option value="ua">Українська</option>
                 <option value="ru">Русский</option>
                 <option value="en">English</option>
-                <option value="de">Deutsch</option>
             </select>
         </div>
         <div class="settings-group">
@@ -459,29 +450,65 @@
     </div>
 
     <script>
-        // Supabase configuration
         const supabaseUrl = 'https://bxqfolxpnxlsmsuleq.supabase.co';
         const supabaseKey = 'sb_publishable_D4IyQCa0sNLO44YWVmRvYw_E1lRCAPF';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let allProducts = [];
 
-        // Generate sizes from 35 to 46.5
-        function initSizes() {
+        const subcategoriesData = {
+            "Взуття": ["Кроссовки", "Кеди", "Босоніжки", "Тапки", "Шльопанці", "Черевики", "Мокасини"],
+            "Одяг": ["Худі / Свитшоты", "Футболки", "Штани / Джинси", "Куртки / Пуховики", "Шорти", "Спортивні костюми", "Кофти"],
+            "Аксесуари": ["Сумки / Рюкзаки", "Кепки / Шапки", "Годинники", "Ремені", "Окуляри", "Прикраси"]
+        };
+
+        function onCategoryChange() {
+            const cat = document.getElementById('filterCategory').value;
+            const subSelect = document.getElementById('filterSubcategory');
             const sizeSelect = document.getElementById('filterSize');
-            for (let i = 35; i <= 46.5; i += 0.5) {
-                let opt = document.createElement('option');
-                opt.value = i;
-                opt.textContent = i;
-                sizeSelect.appendChild(opt);
+
+            // Очищаем подкатегории
+            subSelect.innerHTML = '<option value="">Всі підкатегорії</option>';
+            if (cat && subcategoriesData[cat]) {
+                subcategoriesData[cat].forEach(sub => {
+                    let opt = document.createElement('option');
+                    opt.value = sub;
+                    opt.textContent = sub;
+                    subSelect.appendChild(opt);
+                });
             }
-            // Add clothing sizes too
-            ['XS', 'S', 'M', 'L', 'XL', 'XXL'].forEach(s => {
-                let opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                sizeSelect.appendChild(opt);
-            });
+
+            // Меняем размеры в зависимости от типа
+            sizeSelect.innerHTML = '<option value="">Будь-який розмір</option>';
+            if (cat === 'Взуття') {
+                for (let i = 35; i <= 46.5; i += 0.5) {
+                    let opt = document.createElement('option');
+                    opt.value = i;
+                    opt.textContent = i;
+                    sizeSelect.appendChild(opt);
+                }
+            } else if (cat === 'Одяг') {
+                ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].forEach(s => {
+                    let opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    sizeSelect.appendChild(opt);
+                });
+            } else {
+                // Если все или аксессуары — показываем всё
+                for (let i = 35; i <= 46.5; i += 0.5) {
+                    let opt = document.createElement('option');
+                    opt.value = i;
+                    opt.textContent = i;
+                    sizeSelect.appendChild(opt);
+                }
+                ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].forEach(s => {
+                    let opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    sizeSelect.appendChild(opt);
+                });
+            }
         }
 
         async function fetchProducts() {
@@ -550,14 +577,16 @@
 
         function applyFilters() {
             const cat = document.getElementById('filterCategory').value;
+            const sub = document.getElementById('filterSubcategory').value;
             const brand = document.getElementById('filterBrand').value;
             const size = document.getElementById('filterSize').value;
 
             const filtered = allProducts.filter(p => {
                 let matchCat = !cat || (p.category && p.category === cat);
+                let matchSub = !sub || (p.subcategory && p.subcategory === sub);
                 let matchBrand = !brand || (p.brand && p.brand === brand);
                 let matchSize = !size || (p.sizes && p.sizes.includes(size));
-                return matchCat && matchBrand && matchSize;
+                return matchCat && matchSub && matchBrand && matchSize;
             });
 
             renderProducts(filtered);
@@ -566,15 +595,17 @@
 
         function resetFilters() {
             document.getElementById('filterCategory').value = '';
+            document.getElementById('filterSubcategory').value = '';
             document.getElementById('filterBrand').value = '';
             document.getElementById('filterSize').value = '';
             document.getElementById('searchInput').value = '';
+            onCategoryChange();
             renderProducts(allProducts);
             updateCounters(allProducts.length);
         }
 
         window.onload = () => {
-            initSizes();
+            onCategoryChange();
             fetchProducts();
         };
     </script>
