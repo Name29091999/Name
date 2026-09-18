@@ -82,7 +82,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 30px auto;
             padding: 25px;
             background-color: var(--card-bg);
@@ -107,7 +107,7 @@
             font-size: 14px;
         }
 
-        .form-control {
+        .form-control, select {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
@@ -117,31 +117,39 @@
             font-size: 15px;
         }
 
+        /* Стильные крупные чекбоксы-карточки для размеров */
         .checkbox-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
             gap: 10px;
-            max-height: 160px;
+            max-height: 200px;
             overflow-y: auto;
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 8px;
-            background-color: var(--bg-color);
+            padding: 5px;
         }
 
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
             font-size: 14px;
+            font-weight: bold;
             cursor: pointer;
             user-select: none;
+            background-color: var(--bg-color);
+            transition: all 0.2s;
         }
 
         .checkbox-item input {
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
+            display: none;
+        }
+
+        .checkbox-item:has(input:checked) {
+            border-color: #28a745;
+            background-color: rgba(40, 167, 69, 0.15);
+            color: #28a745;
         }
 
         .btn-submit {
@@ -159,6 +167,64 @@
 
         .btn-submit:hover {
             background-color: #218838;
+        }
+
+        /* Список товаров снизу */
+        .products-list-section {
+            margin-top: 40px;
+            border-top: 2px solid var(--border-color);
+            padding-top: 25px;
+        }
+
+        .product-card-admin {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            gap: 15px;
+        }
+
+        .product-info-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .product-thumb {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .product-details h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .product-details p {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
         }
 
         .drawer {
@@ -237,6 +303,11 @@
             </div>
 
             <div class="form-group">
+                <label id="labelArticle">Артикул (код товару)</label>
+                <input type="text" id="prodArticle" class="form-control" placeholder="Наприклад: NK-AF1-001">
+            </div>
+
+            <div class="form-group">
                 <label id="labelPrice">Ціна (грн)</label>
                 <input type="number" id="prodPrice" class="form-control" placeholder="2500" required>
             </div>
@@ -257,7 +328,7 @@
 
             <div class="form-group">
                 <label id="labelBrand">Бренд</label>
-                <select id="prodBrand" class="form-control" required>
+                <select id="prodBrand" class="form-control" onchange="checkCustomBrand()" required>
                     <option value="Nike">Nike</option>
                     <option value="Adidas">Adidas</option>
                     <option value="Puma">Puma</option>
@@ -273,8 +344,13 @@
                     <option value="Carhartt">Carhartt</option>
                     <option value="Levi's">Levi's</option>
                     <option value="The North Face">The North Face</option>
-                    <option value="Інше">Інше / Друге</option>
+                    <option value="custom">Свій варіант (ввести вручну)...</option>
                 </select>
+            </div>
+
+            <div class="form-group" id="customBrandGroup" style="display: none;">
+                <label id="labelCustomBrand">Введіть свій бренд</label>
+                <input type="text" id="prodCustomBrand" class="form-control" placeholder="Введіть назву бренду">
             </div>
 
             <div class="form-group">
@@ -283,8 +359,8 @@
             </div>
 
             <div class="form-group">
-                <label id="labelImages">Посилання на фото (через кому, якщо кілька)</label>
-                <input type="text" id="prodImages" class="form-control" placeholder="https://site.com/photo1.jpg, https://site.com/photo2.jpg">
+                <label id="labelImages">Вибрати фото з галереї (можна кілька)</label>
+                <input type="file" id="prodImagesFile" class="form-control" accept="image/*" multiple>
             </div>
 
             <div class="form-group">
@@ -294,6 +370,13 @@
 
             <button type="submit" class="btn-submit" id="submitBtn">Зберегти товар</button>
         </form>
+
+        <div class="products-list-section">
+            <h3 id="listHeader" style="margin-bottom: 15px; font-size: 18px;">Список доданих товарів</h3>
+            <div id="adminProductsContainer">
+                <p style="opacity: 0.6; text-align: center;" id="loadingText">Завантаження товарів...</p>
+            </div>
+        </div>
     </div>
 
     <div class="drawer" id="settingsDrawer">
@@ -337,12 +420,14 @@
                 title: "Name - Адмін-панель",
                 header: "Додати новий товар",
                 lblTitle: "Назва товару",
+                lblArticle: "Артикул (код товару)",
                 lblPrice: "Ціна (грн)",
                 lblCat: "Тип товару",
                 lblSubcat: "Підкатегорія",
                 lblBrand: "Бренд",
+                lblCustomBrand: "Введіть свій бренд",
                 lblSizes: "Виберіть доступні розміри",
-                lblImages: "Посилання на фото (через кому, якщо кілька)",
+                lblImages: "Вибрати фото з галереї (можна кілька)",
                 lblTg: "Посилання для замовлення в Telegram",
                 submit: "Зберегти товар",
                 success: "Товар успішно додано!",
@@ -351,18 +436,23 @@
                 theme: "Тема оформлення",
                 dark: "Тёмная",
                 grey: "Серая",
-                light: "Светлая"
+                light: "Светлая",
+                listHeader: "Список доданих товарів",
+                loading: "Завантаження товарів...",
+                delBtn: "Видалити"
             },
             ru: {
                 title: "Name - Админ-панель",
                 header: "Добавить новый товар",
                 lblTitle: "Название товара",
+                lblArticle: "Артикул (код товара)",
                 lblPrice: "Цена (грн)",
                 lblCat: "Тип товара",
                 lblSubcat: "Подкатегория",
                 lblBrand: "Бренд",
+                lblCustomBrand: "Введите свой бренд",
                 lblSizes: "Выберите доступные размеры",
-                lblImages: "Ссылки на фото (через запятую)",
+                lblImages: "Выбрать фото из галереи (можно несколько)",
                 lblTg: "Ссылка для заказа в Telegram",
                 submit: "Сохранить товар",
                 success: "Товар успешно добавлен!",
@@ -371,18 +461,23 @@
                 theme: "Тема оформления",
                 dark: "Тёмная",
                 grey: "Серая",
-                light: "Светлая"
+                light: "Светлая",
+                listHeader: "Список добавленных товаров",
+                loading: "Загрузка товаров...",
+                delBtn: "Удалить"
             },
             en: {
                 title: "Name - Admin Panel",
                 header: "Add New Product",
                 lblTitle: "Product Name",
+                lblArticle: "Article / SKU",
                 lblPrice: "Price (UAH)",
                 lblCat: "Category",
                 lblSubcat: "Subcategory",
                 lblBrand: "Brand",
+                lblCustomBrand: "Enter custom brand",
                 lblSizes: "Select available sizes",
-                lblImages: "Image URLs (comma separated)",
+                lblImages: "Choose photos from gallery",
                 lblTg: "Telegram order link",
                 submit: "Save Product",
                 success: "Product successfully added!",
@@ -391,47 +486,10 @@
                 theme: "Theme",
                 dark: "Dark",
                 grey: "Grey",
-                light: "Light"
-            },
-            be: {
-                title: "Name - Адмін-панэль",
-                header: "Дадаць новы тавар",
-                lblTitle: "Назва тавара",
-                lblPrice: "Кошт (грн)",
-                lblCat: "Тып тавара",
-                lblSubcat: "Падкатэгорыя",
-                lblBrand: "Брэнд",
-                lblSizes: "Выберыце даступныя памеры",
-                lblImages: "Спасылкі на фота",
-                lblTg: "Спасылка для замовы ў Telegram",
-                submit: "Захаваць тавар",
-                success: "Тавар паспяхова дададзены!",
-                settings: "Налады",
-                lang: "Мова / Language",
-                theme: "Тэма афармлення",
-                dark: "Цёмная",
-                grey: "Шэрая",
-                light: "Светлая"
-            },
-            zh: {
-                title: "Name - 管理面板",
-                header: "添加新商品",
-                lblTitle: "商品名称",
-                lblPrice: "价格 (UAH)",
-                lblCat: "商品类型",
-                lblSubcat: "子类别",
-                lblBrand: "品牌",
-                lblSizes: "选择可用尺寸",
-                lblImages: "图片链接 (逗号分隔)",
-                lblTg: "Telegram 订购链接",
-                submit: "保存商品",
-                success: "商品添加成功！",
-                settings: "设置",
-                lang: "语言 / Language",
-                theme: "主题",
-                dark: "深色",
-                grey: "灰色",
-                light: "浅色"
+                light: "Light",
+                listHeader: "Added Products List",
+                loading: "Loading products...",
+                delBtn: "Delete"
             }
         };
 
@@ -470,6 +528,16 @@
             }
         }
 
+        function checkCustomBrand() {
+            const brand = document.getElementById('prodBrand').value;
+            const customGroup = document.getElementById('customBrandGroup');
+            if (brand === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        }
+
         function toggleDrawer() {
             document.getElementById('settingsDrawer').classList.toggle('open');
         }
@@ -483,14 +551,17 @@
             document.getElementById('pageTitle').textContent = t.title;
             document.getElementById('formHeader').textContent = t.header;
             document.getElementById('labelTitle').textContent = t.lblTitle;
+            document.getElementById('labelArticle').textContent = t.lblArticle;
             document.getElementById('labelPrice').textContent = t.lblPrice;
             document.getElementById('labelCat').textContent = t.lblCat;
             document.getElementById('labelSubcat').textContent = t.lblSubcat;
             document.getElementById('labelBrand').textContent = t.lblBrand;
+            document.getElementById('labelCustomBrand').textContent = t.lblCustomBrand;
             document.getElementById('labelSizes').textContent = t.lblSizes;
             document.getElementById('labelImages').textContent = t.lblImages;
             document.getElementById('labelTg').textContent = t.lblTg;
             document.getElementById('submitBtn').textContent = t.submit;
+            document.getElementById('listHeader').textContent = t.listHeader;
             
             document.getElementById('settingsTitle').textContent = t.settings;
             document.getElementById('langLabel').textContent = t.lang;
@@ -498,6 +569,20 @@
             document.getElementById('themeDark').textContent = t.dark;
             document.getElementById('themeGrey').textContent = t.grey;
             document.getElementById('themeLight').textContent = t.light;
+            loadProductsList();
+        }
+
+        // Конвертация выбранных файлов в Base64 для сохранения
+        async function convertFilesToBasePath(files) {
+            let promises = Array.from(files).map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            });
+            return Promise.all(promises);
         }
 
         async function saveProduct(event) {
@@ -506,19 +591,28 @@
             const t = translations[lang] || translations.ua;
 
             const title = document.getElementById('prodTitle').value.trim();
+            const article = document.getElementById('prodArticle').value.trim();
             const price = parseFloat(document.getElementById('prodPrice').value);
             const category = document.getElementById('prodCategory').value;
             const subcategory = document.getElementById('prodSubcategory').value;
-            const brand = document.getElementById('prodBrand').value;
+            
+            let brand = document.getElementById('prodBrand').value;
+            if (brand === 'custom') {
+                brand = document.getElementById('prodCustomBrand').value.trim() || 'Інше';
+            }
             
             const selectedSizes = Array.from(document.querySelectorAll('#sizesContainer input:checked')).map(cb => cb.value);
             
-            const imagesRaw = document.getElementById('prodImages').value.trim();
-            const images = imagesRaw ? imagesRaw.split(',').map(s => s.trim()) : [];
+            const filesInput = document.getElementById('prodImagesFile');
+            let images = [];
+            if (filesInput.files.length > 0) {
+                images = await convertFilesToBasePath(filesInput.files);
+            }
+
             const tg_link = document.getElementById('prodTg').value.trim();
 
             const { error } = await supabaseClient.from('products').insert([
-                { title, price, category, subcategory, brand, sizes: selectedSizes, images, tg_link }
+                { title, article, price, category, subcategory, brand, sizes: selectedSizes, images, tg_link }
             ]);
 
             if (error) {
@@ -527,12 +621,65 @@
             } else {
                 alert(t.success);
                 document.getElementById('productForm').reset();
+                document.getElementById('customBrandGroup').style.display = 'none';
                 updateSubcategories();
+                loadProductsList();
+            }
+        }
+
+        async function loadProductsList() {
+            const lang = document.getElementById('langSelect').value;
+            const t = translations[lang] || translations.ua;
+            const container = document.getElementById('adminProductsContainer');
+            container.innerHTML = `<p style="opacity: 0.6; text-align: center;">${t.loading}</p>`;
+
+            const { data: products, error } = await supabaseClient
+                .from('products')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) {
+                container.innerHTML = `<p style="color: red;">Помилка завантаження</p>`;
+                return;
+            }
+
+            if (!products || products.length === 0) {
+                container.innerHTML = `<p style="opacity: 0.6; text-align: center;">Товарів поки немає</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            products.forEach(p => {
+                let thumb = (p.images && p.images.length > 0) ? p.images[0] : 'https://via.placeholder.com/50';
+                let artText = p.article ? `Артикул: ${p.article}` : '';
+                container.innerHTML += `
+                    <div class="product-card-admin">
+                        <div class="product-info-left">
+                            <img src="${thumb}" class="product-thumb" alt="img">
+                            <div class="product-details">
+                                <h4>${p.title}</h4>
+                                <p>${p.brand} • <b>${p.price} грн</b> • ${p.category} / ${p.subcategory} ${artText ? '• ' + artText : ''}</p>
+                            </div>
+                        </div>
+                        <button class="btn-delete" onclick="deleteProduct(${p.id})">${t.delBtn}</button>
+                    </div>
+                `;
+            });
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm("Ви впевнені, що хочете видалити цей товар?")) return;
+            const { error } = await supabaseClient.from('products').delete().eq('id', id);
+            if (error) {
+                alert("Помилка видалення: " + error.message);
+            } else {
+                loadProductsList();
             }
         }
 
         window.onload = () => {
             updateSubcategories();
+            loadProductsList();
         };
     </script>
 </body>
