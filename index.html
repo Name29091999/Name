@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Name - Інтернет-магазин</title>
+    <title id="pageTitle">Name - Інтернет-магазин</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -49,7 +49,6 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* Исправленная бесконечная бегущая строка без пауз */
         .marquee-container {
             background-color: var(--header-bg);
             color: var(--header-text);
@@ -108,7 +107,6 @@
             letter-spacing: 1px;
         }
 
-        /* Увеличенная секция баннера с градиентным текстом */
         .hero-section {
             width: 100%;
             height: 500px;
@@ -265,27 +263,74 @@
         }
 
         .checkbox-list {
-            max-height: 160px;
+            max-height: 180px;
             overflow-y: auto;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 8px;
+            padding: 10px;
             background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
+        /* Красивые крупные чекбоксы */
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 14px;
+            gap: 12px;
+            font-size: 15px;
             cursor: pointer;
+            user-select: none;
+            padding: 4px 0;
         }
 
         .checkbox-item input {
+            position: absolute;
+            opacity: 0.01;
             cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .custom-checkbox {
+            position: relative;
+            height: 20px;
+            width: 20px;
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .checkbox-item:hover input ~ .custom-checkbox {
+            border-color: var(--accent-color);
+        }
+
+        .checkbox-item input:checked ~ .custom-checkbox {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .custom-checkbox:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-item input:checked ~ .custom-checkbox:after {
+            display: block;
+        }
+
+        .checkbox-item .custom-checkbox:after {
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid var(--header-text);
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
         }
 
         .filter-actions {
@@ -405,62 +450,62 @@
 
     <section class="hero-section">
         <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1920&q=80" alt="Hero Store" class="hero-img">
-        <h1 class="hero-title">Каталог Одяг&Взуття</h1>
+        <h1 class="hero-title" id="heroText">Каталог Одяг&Взуття</h1>
     </section>
 
     <div class="search-filter-bar">
         <input type="text" id="searchInput" class="search-input" placeholder="Пошук за назвою або артикулом..." oninput="filterProducts()">
-        <button class="filter-open-btn" onclick="toggleFilterPanel()">Фільтри</button>
+        <button class="filter-open-btn" onclick="toggleFilterPanel()" id="filterBtnText">Фільтри</button>
     </div>
 
     <div class="filter-panel" id="filterPanel">
         <div class="filter-grid">
             <div class="filter-column">
-                <h4>Тип товару</h4>
+                <h4 id="catTitle">Тип товару</h4>
                 <div class="checkbox-list" id="categoryCheckboxes">
-                    <label class="checkbox-item"><input type="checkbox" value="Взуття"> Взуття</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Одяг"> Одяг</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Аксесуари"> Аксесуари</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Взуття" onchange="onCategoryChange()"><span class="custom-checkbox"></span> <span class="cat-shoe">Взуття</span></label>
+                    <label class="checkbox-item"><input type="checkbox" value="Одяг" onchange="onCategoryChange()"><span class="custom-checkbox"></span> <span class="cat-cloth">Одяг</span></label>
+                    <label class="checkbox-item"><input type="checkbox" value="Аксесуари" onchange="onCategoryChange()"><span class="custom-checkbox"></span> <span class="cat-acc">Аксесуари</span></label>
                 </div>
             </div>
 
             <div class="filter-column">
-                <h4>Підкатегорія</h4>
+                <h4 id="subcatTitle">Підкатегорія</h4>
                 <div class="checkbox-list" id="subcategoryCheckboxes"></div>
             </div>
 
             <div class="filter-column">
-                <h4>Бренд</h4>
+                <h4 id="brandTitle">Бренд</h4>
                 <div class="checkbox-list" id="brandCheckboxes">
-                    <label class="checkbox-item"><input type="checkbox" value="Nike"> Nike</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Adidas"> Adidas</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Puma"> Puma</label>
-                    <label class="checkbox-item"><input type="checkbox" value="New Balance"> New Balance</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Reebok"> Reebok</label>
-                    <label class="checkbox-item"><input type="checkbox" value="ASICS"> ASICS</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Under Armour"> Under Armour</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Salomon"> Salomon</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Converse"> Converse</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Vans"> Vans</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Crocs"> Crocs</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Stone Island"> Stone Island</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Carhartt"> Carhartt</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Levi's"> Levi's</label>
-                    <label class="checkbox-item"><input type="checkbox" value="The North Face"> The North Face</label>
-                    <label class="checkbox-item"><input type="checkbox" value="Інше"> Інше / Друге</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Nike"><span class="custom-checkbox"></span> Nike</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Adidas"><span class="custom-checkbox"></span> Adidas</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Puma"><span class="custom-checkbox"></span> Puma</label>
+                    <label class="checkbox-item"><input type="checkbox" value="New Balance"><span class="custom-checkbox"></span> New Balance</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Reebok"><span class="custom-checkbox"></span> Reebok</label>
+                    <label class="checkbox-item"><input type="checkbox" value="ASICS"><span class="custom-checkbox"></span> ASICS</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Under Armour"><span class="custom-checkbox"></span> Under Armour</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Salomon"><span class="custom-checkbox"></span> Salomon</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Converse"><span class="custom-checkbox"></span> Converse</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Vans"><span class="custom-checkbox"></span> Vans</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Crocs"><span class="custom-checkbox"></span> Crocs</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Stone Island"><span class="custom-checkbox"></span> Stone Island</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Carhartt"><span class="custom-checkbox"></span> Carhartt</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Levi's"><span class="custom-checkbox"></span> Levi's</label>
+                    <label class="checkbox-item"><input type="checkbox" value="The North Face"><span class="custom-checkbox"></span> The North Face</label>
+                    <label class="checkbox-item"><input type="checkbox" value="Інше"><span class="custom-checkbox"></span> <span class="brand-other">Інше / Друге</span></label>
                 </div>
             </div>
 
             <div class="filter-column">
-                <h4>Розмір</h4>
+                <h4 id="sizeTitle">Розмір</h4>
                 <div class="checkbox-list" id="sizeCheckboxes"></div>
             </div>
         </div>
         <div class="filter-actions">
             <span id="productCounter" style="font-weight: 600;">Знайдено товарів: 0</span>
             <div>
-                <button class="btn-reset" onclick="resetFilters()">Скинути</button>
-                <button class="btn-apply" onclick="applyFilters()">Застосувати (<span id="applyCounter">0</span>)</button>
+                <button class="btn-reset" onclick="resetFilters()" id="resetBtnText">Скинути</button>
+                <button class="btn-apply" onclick="applyFilters()" id="applyBtnText">Застосувати (<span>0</span>)</button>
             </div>
         </div>
     </div>
@@ -471,23 +516,25 @@
 
     <div class="drawer" id="settingsDrawer">
         <div class="drawer-header">
-            <span>Налаштування</span>
+            <span id="settingsTitle">Налаштування</span>
             <button class="close-drawer" onclick="toggleDrawer()">×</button>
         </div>
         <div class="settings-group">
-            <label>Мова / Language</label>
-            <select id="langSelect">
+            <label id="langLabel">Мова / Language</label>
+            <select id="langSelect" onchange="changeLanguage(this.value)">
                 <option value="ua">Українська</option>
                 <option value="ru">Русский</option>
                 <option value="en">English</option>
+                <option value="be">Беларуская</option>
+                <option value="zh">中文 (Chinese)</option>
             </select>
         </div>
         <div class="settings-group">
-            <label>Тема оформлення</label>
+            <label id="themeLabel">Тема оформлення</label>
             <select id="themeSelect" onchange="changeTheme(this.value)">
-                <option value="dark">Тёмная (Telegram/YouTube)</option>
-                <option value="grey">Серая</option>
-                <option value="light">Светлая</option>
+                <option value="dark" id="themeDark">Тёмная</option>
+                <option value="grey" id="themeGrey">Серая</option>
+                <option value="light" id="themeLight">Светлая</option>
             </select>
         </div>
     </div>
@@ -505,29 +552,204 @@
             "Аксесуари": ["Сумки / Рюкзаки", "Кепки / Шапки", "Годинники", "Ремені", "Окуляри", "Прикраси"]
         };
 
+        const translations = {
+            ua: {
+                title: "Name - Інтернет-магазин",
+                hero: "Каталог Одяг & Взуття",
+                searchPlaceholder: "Пошук за назвою або артикулом...",
+                filters: "Фільтри",
+                catTitle: "Тип товару",
+                subcatTitle: "Підкатегорія",
+                brandTitle: "Бренд",
+                sizeTitle: "Розмір",
+                reset: "Скинути",
+                apply: "Застосувати",
+                found: "Знайдено товарів: ",
+                settings: "Налаштування",
+                lang: "Мова / Language",
+                theme: "Тема оформлення",
+                dark: "Тёмная",
+                grey: "Серая",
+                light: "Светлая",
+                shoe: "Взуття",
+                cloth: "Одяг",
+                acc: "Аксесуари",
+                otherBrand: "Інше / Друге",
+                noProducts: "Товарів не знайдено",
+                orderBtn: "Telegram замовлення"
+            },
+            ru: {
+                title: "Name - Интернет-магазин",
+                hero: "Каталог Одежда & Обувь",
+                searchPlaceholder: "Поиск по названию или артикулу...",
+                filters: "Фильтры",
+                catTitle: "Тип товара",
+                subcatTitle: "Подкатегория",
+                brandTitle: "Бренд",
+                sizeTitle: "Размер",
+                reset: "Сбросить",
+                apply: "Применить",
+                found: "Найдено товаров: ",
+                settings: "Настройки",
+                lang: "Язык / Language",
+                theme: "Тема оформления",
+                dark: "Тёмная",
+                grey: "Серая",
+                light: "Светлая",
+                shoe: "Обувь",
+                cloth: "Одежда",
+                acc: "Аксессуары",
+                otherBrand: "Другое",
+                noProducts: "Товары не найдены",
+                orderBtn: "Telegram заказ"
+            },
+            en: {
+                title: "Name - Online Store",
+                hero: "Catalog Clothing & Shoes",
+                searchPlaceholder: "Search by name or article...",
+                filters: "Filters",
+                catTitle: "Category",
+                subcatTitle: "Subcategory",
+                brandTitle: "Brand",
+                sizeTitle: "Size",
+                reset: "Reset",
+                apply: "Apply",
+                found: "Products found: ",
+                settings: "Settings",
+                lang: "Language",
+                theme: "Theme",
+                dark: "Dark",
+                grey: "Grey",
+                light: "Light",
+                shoe: "Shoes",
+                cloth: "Clothing",
+                acc: "Accessories",
+                otherBrand: "Other",
+                noProducts: "No products found",
+                orderBtn: "Telegram order"
+            },
+            be: {
+                title: "Name - Інтэрнэт-крама",
+                hero: "Каталог Адзенне & Абутак",
+                searchPlaceholder: "Пошук па назве або артыкулу...",
+                filters: "Фільтры",
+                catTitle: "Тып тавара",
+                subcatTitle: "Падкатэгорыя",
+                brandTitle: "Брэнд",
+                sizeTitle: "Памер",
+                reset: "Скінуць",
+                apply: "Ужыць",
+                found: "Знойдзена тавараў: ",
+                settings: "Налады",
+                lang: "Мова / Language",
+                theme: "Тэма афармлення",
+                dark: "Цёмная",
+                grey: "Шэрая",
+                light: "Светлая",
+                shoe: "Абутак",
+                cloth: "Адзенне",
+                acc: "Аксэсуары",
+                otherBrand: "Іншае",
+                noProducts: "Тавараў не знойдзена",
+                orderBtn: "Telegram заказ"
+            },
+            zh: {
+                title: "Name - 在线商店",
+                hero: "服装与鞋类目录",
+                searchPlaceholder: "按名称或货号搜索...",
+                filters: "筛选",
+                catTitle: "商品类型",
+                subcatTitle: "子类别",
+                brandTitle: "品牌",
+                sizeTitle: "尺寸",
+                reset: "重置",
+                apply: "应用",
+                found: "找到商品数量: ",
+                settings: "设置",
+                lang: "语言 / Language",
+                theme: "主题",
+                dark: "深色",
+                grey: "灰色",
+                light: "浅色",
+                shoe: "鞋类",
+                cloth: "服装",
+                acc: "配饰",
+                otherBrand: "其他",
+                noProducts: "未找到商品",
+                orderBtn: "Telegram 订购"
+            }
+        };
+
         function initDynamicContent() {
-            // Дублируем текст в бегущей строке, чтобы он шел сплошным потоком без разрывов
             const track = document.getElementById('marqueeTrack');
             track.innerHTML = track.innerHTML.repeat(3);
+            updateDynamicLists();
+        }
 
-            // Заполняем подкатегории
+        function getSelectedCategories() {
+            const checkboxes = document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function updateDynamicLists() {
+            const selectedCats = getSelectedCategories();
+            
+            // Динамические подкатегории
             const subContainer = document.getElementById('subcategoryCheckboxes');
+            const previouslyCheckedSubs = Array.from(subContainer.querySelectorAll('input:checked')).map(cb => cb.value);
             subContainer.innerHTML = '';
-            let allSubs = new Set();
-            Object.values(subcategoriesData).forEach(arr => arr.forEach(sub => allSubs.add(sub)));
-            allSubs.forEach(sub => {
-                subContainer.innerHTML += `<label class="checkbox-item"><input type="checkbox" value="${sub}"> ${sub}</label>`;
+            
+            let subsToShow = new Set();
+            if (selectedCats.length === 0) {
+                Object.values(subcategoriesData).forEach(arr => arr.forEach(sub => subsToShow.add(sub)));
+            } else {
+                selectedCats.forEach(cat => {
+                    if (subcategoriesData[cat]) {
+                        subcategoriesData[cat].forEach(sub => subsToShow.add(sub));
+                    }
+                });
+            }
+
+            subsToShow.forEach(sub => {
+                let isChecked = previouslyCheckedSubs.includes(sub) ? 'checked' : '';
+                subContainer.innerHTML += `
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="${sub}" ${isChecked}><span class="custom-checkbox"></span> ${sub}
+                    </label>`;
             });
 
-            // Заполняем размеры
+            // Динамические размеры (обувные или буквенные в зависимости от выбора)
             const sizeContainer = document.getElementById('sizeCheckboxes');
+            const previouslyCheckedSizes = Array.from(sizeContainer.querySelectorAll('input:checked')).map(cb => cb.value);
             sizeContainer.innerHTML = '';
-            for (let i = 35; i <= 46.5; i += 0.5) {
-                sizeContainer.innerHTML += `<label class="checkbox-item"><input type="checkbox" value="${i}"> ${i}</label>`;
+
+            let showShoesSizes = selectedCats.length === 0 || selectedCats.includes("Взуття");
+            let showClothSizes = selectedCats.length === 0 || selectedCats.includes("Одяг") || selectedCats.includes("Аксесуари");
+
+            if (showShoesSizes) {
+                for (let i = 35; i <= 46.5; i += 0.5) {
+                    let val = i.toString();
+                    let isChecked = previouslyCheckedSizes.includes(val) ? 'checked' : '';
+                    sizeContainer.innerHTML += `
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="${val}" ${isChecked}><span class="custom-checkbox"></span> ${val}
+                        </label>`;
+                }
             }
-            ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].forEach(s => {
-                sizeContainer.innerHTML += `<label class="checkbox-item"><input type="checkbox" value="${s}"> ${s}</label>`;
-            });
+            if (showClothSizes) {
+                ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].forEach(s => {
+                    let isChecked = previouslyCheckedSizes.includes(s) ? 'checked' : '';
+                    sizeContainer.innerHTML += `
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="${s}" ${isChecked}><span class="custom-checkbox"></span> ${s}
+                        </label>`;
+                });
+            }
+        }
+
+        function onCategoryChange() {
+            updateDynamicLists();
+            applyFilters();
         }
 
         async function fetchProducts() {
@@ -545,8 +767,11 @@
             const grid = document.getElementById('productsGrid');
             grid.innerHTML = '';
             
+            const lang = document.getElementById('langSelect').value;
+            const t = translations[lang] || translations.ua;
+
             if (products.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding: 40px;">Товарів не знайдено</p>';
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding: 40px;">${t.noProducts}</p>`;
                 return;
             }
 
@@ -560,7 +785,7 @@
                         <div class="product-brand">${p.brand || ''}</div>
                         <div class="product-title">${p.title}</div>
                         <div class="product-price">${p.price} грн</div>
-                        ${p.tg_link ? `<a href="${p.tg_link}" target="_blank" class="product-tg-btn">Telegram замовлення</a>` : ''}
+                        ${p.tg_link ? `<a href="${p.tg_link}" target="_blank" class="product-tg-btn">${t.orderBtn}</a>` : ''}
                     </div>
                 `;
                 grid.appendChild(card);
@@ -579,6 +804,35 @@
             document.body.setAttribute('data-theme', theme);
         }
 
+        function changeLanguage(lang) {
+            const t = translations[lang] || translations.ua;
+            
+            document.getElementById('pageTitle').textContent = t.title;
+            document.getElementById('heroText').textContent = t.hero;
+            document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+            document.getElementById('filterBtnText').textContent = t.filters;
+            document.getElementById('catTitle').textContent = t.catTitle;
+            document.getElementById('subcatTitle').textContent = t.subcatTitle;
+            document.getElementById('brandTitle').textContent = t.brandTitle;
+            document.getElementById('sizeTitle').textContent = t.sizeTitle;
+            document.getElementById('resetBtnText').textContent = t.reset;
+            
+            document.getElementById('settingsTitle').textContent = t.settings;
+            document.getElementById('langLabel').textContent = t.lang;
+            document.getElementById('themeLabel').textContent = t.theme;
+            document.getElementById('themeDark').textContent = t.dark;
+            document.getElementById('themeGrey').textContent = t.grey;
+            document.getElementById('themeLight').textContent = t.light;
+
+            document.querySelector('.cat-shoe').textContent = t.shoe;
+            document.querySelector('.cat-cloth').textContent = t.cloth;
+            document.querySelector('.cat-acc').textContent = t.acc;
+            document.querySelector('.brand-other').textContent = t.otherBrand;
+
+            updateCounters(allProducts.length);
+            renderProducts(allProducts);
+        }
+
         function filterProducts() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allProducts.filter(p => 
@@ -590,8 +844,10 @@
         }
 
         function updateCounters(count) {
-            document.getElementById('productCounter').textContent = `Знайдено товарів: ${count}`;
-            document.getElementById('applyCounter').textContent = count;
+            const lang = document.getElementById('langSelect').value;
+            const t = translations[lang] || translations.ua;
+            document.getElementById('productCounter').textContent = `${t.found}${count}`;
+            document.querySelector('.btn-apply span').textContent = count;
         }
 
         function getCheckedValues(containerId) {
@@ -624,7 +880,8 @@
 
         function resetFilters() {
             document.querySelectorAll('.filter-panel input[type="checkbox"]').forEach(cb => cb.checked = false);
-            document.getElementById('searchInput'.value = '');
+            document.getElementById('searchInput').value = '';
+            updateDynamicLists();
             renderProducts(allProducts);
             updateCounters(allProducts.length);
         }
