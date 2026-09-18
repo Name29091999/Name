@@ -3,190 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Адмін-панель - Name</title>
+    <title id="pageTitle">Name - Адмін-панель</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --card-bg: #1e1e1e;
-            --border-color: #333333;
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --accent-color: #000000;
+            --header-bg: #000000;
+            --header-text: #ffffff;
+        }
+
+        [data-theme="grey"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --card-bg: #343a40;
+            --border-color: #495057;
             --accent-color: #ffffff;
+            --header-bg: #1a1d20;
+            --header-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f1012;
+            --text-color: #e3e3e3;
+            --card-bg: #1b1c1e;
+            --border-color: #2c2d30;
+            --accent-color: #ffffff;
+            --header-bg: #161719;
+            --header-text: #ffffff;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .container {
             max-width: 800px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            text-align: center;
-        }
-
-        .form-card {
+            margin: 30px auto;
+            padding: 25px;
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        label {
+        .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
+            margin-bottom: 8px;
+            font-weight: 600;
             font-size: 14px;
         }
 
-        input, select, textarea {
+        .form-control {
             width: 100%;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 8px;
             border: 1px solid var(--border-color);
-            background-color: #2a2a2a;
+            background-color: var(--bg-color);
             color: var(--text-color);
             font-size: 15px;
         }
 
-        textarea {
-            resize: vertical;
-            height: 80px;
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            max-height: 160px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            background-color: var(--bg-color);
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-item input {
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
         }
 
         .btn-submit {
             background-color: #28a745;
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            width: 100%;
             font-size: 16px;
+            transition: background 0.2s;
         }
 
         .btn-submit:hover {
             background-color: #218838;
         }
 
-        .product-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
         }
 
-        .product-item {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
+        .drawer.open {
+            left: 0;
+        }
+
+        .drawer-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 25px;
+            font-size: 18px;
+            font-weight: bold;
         }
 
-        .product-info h3 {
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .product-info p {
-            font-size: 14px;
-            opacity: 0.7;
-        }
-
-        .btn-delete {
-            background-color: #dc3545;
-            color: white;
+        .close-drawer {
+            background: none;
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            font-size: 22px;
             cursor: pointer;
+            color: var(--text-color);
         }
 
-        .btn-delete:hover {
-            background-color: #c82333;
-        }
-
-        .back-link {
-            display: inline-block;
+        .settings-group {
             margin-bottom: 20px;
-            color: #4dabf7;
-            text-decoration: none;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .settings-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
     </style>
 </head>
-<body>
+<body data-theme="dark">
+
+    <header class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" onclick="toggleDrawer()">☰</button>
+            <div class="brand-title">Name Admin</div>
+        </div>
+    </header>
 
     <div class="container">
-        <a href="index.html" class="link back-link">← Назад до магазину</a>
-        <h1>Панель керування товарами</h1>
+        <h2 id="formHeader">Додати новий товар</h2>
+        <form id="productForm" onsubmit="saveProduct(event)">
+            
+            <div class="form-group">
+                <label id="labelTitle">Назва товару</label>
+                <input type="text" id="prodTitle" class="form-control" placeholder="Наприклад: Кроссовки Nike Air Force" required>
+            </div>
 
-        <!-- Форма добавления товара -->
-        <div class="form-card">
-            <h2 style="font-size: 18px; margin-bottom: 15px;">Додати новий товар</h2>
             <div class="form-group">
-                <label>Назва товару</label>
-                <input type="text" id="productTitle" placeholder="Наприклад: Кроссовки Nike Air Force">
+                <label id="labelPrice">Ціна (грн)</label>
+                <input type="number" id="prodPrice" class="form-control" placeholder="2500" required>
             </div>
+
             <div class="form-group">
-                <label>Ціна (грн)</label>
-                <input type="number" id="productPrice" placeholder="2500">
-            </div>
-            <div class="form-group">
-                <label>Категорія</label>
-                <select id="productCategory">
-                    <option value="Одяг">Одяг</option>
+                <label id="labelCat">Тип товару</label>
+                <select id="prodCategory" class="form-control" onchange="updateSubcategories()" required>
                     <option value="Взуття">Взуття</option>
+                    <option value="Одяг">Одяг</option>
                     <option value="Аксесуари">Аксесуари</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Бренд</label>
-                <input type="text" id="productBrand" placeholder="Nike, Adidas тощо">
-            </div>
-            <div class="form-group">
-                <label>Розміри (через кому, наприклад: 41, 42, 42.5, M, L)</label>
-                <input type="text" id="productSizes" placeholder="38, 38.5, 39, 40">
-            </div>
-            <div class="form-group">
-                <label>Посилання на фото (через кому, якщо кілька)</label>
-                <input type="text" id="productImages" placeholder="https://site.com/photo1.jpg, https://site.com/photo2.jpg">
-            </div>
-            <div class="form-group">
-                <label>Посилання для замовлення в Telegram</label>
-                <input type="text" id="productTg" placeholder="https://t.me/your_username">
-            </div>
-            <div class="form-group">
-                <label>Опис товару</label>
-                <textarea id="productDesc" placeholder="Детальний опис товару..."></textarea>
-            </div>
-            <button class="btn-submit" onclick="addProduct()">Зберегти товар</button>
-        </div>
 
-        <!-- Список товаров для удаления -->
-        <h2 style="font-size: 18px; margin-bottom: 15px;">Існуючі товари</h2>
-        <div class="product-list" id="adminProductList">
-            <!-- Подгружается динамически -->
+            <div class="form-group">
+                <label id="labelSubcat">Підкатегорія</label>
+                <select id="prodSubcategory" class="form-control" required></select>
+            </div>
+
+            <div class="form-group">
+                <label id="labelBrand">Бренд</label>
+                <select id="prodBrand" class="form-control" required>
+                    <option value="Nike">Nike</option>
+                    <option value="Adidas">Adidas</option>
+                    <option value="Puma">Puma</option>
+                    <option value="New Balance">New Balance</option>
+                    <option value="Reebok">Reebok</option>
+                    <option value="ASICS">ASICS</option>
+                    <option value="Under Armour">Under Armour</option>
+                    <option value="Salomon">Salomon</option>
+                    <option value="Converse">Converse</option>
+                    <option value="Vans">Vans</option>
+                    <option value="Crocs">Crocs</option>
+                    <option value="Stone Island">Stone Island</option>
+                    <option value="Carhartt">Carhartt</option>
+                    <option value="Levi's">Levi's</option>
+                    <option value="The North Face">The North Face</option>
+                    <option value="Інше">Інше / Друге</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label id="labelSizes">Виберіть доступні розміри</label>
+                <div class="checkbox-grid" id="sizesContainer"></div>
+            </div>
+
+            <div class="form-group">
+                <label id="labelImages">Посилання на фото (через кому, якщо кілька)</label>
+                <input type="text" id="prodImages" class="form-control" placeholder="https://site.com/photo1.jpg, https://site.com/photo2.jpg">
+            </div>
+
+            <div class="form-group">
+                <label id="labelTg">Посилання для замовлення в Telegram</label>
+                <input type="text" id="prodTg" class="form-control" placeholder="https://t.me/your_username">
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">Зберегти товар</button>
+        </form>
+    </div>
+
+    <div class="drawer" id="settingsDrawer">
+        <div class="drawer-header">
+            <span id="settingsTitle">Налаштування</span>
+            <button class="close-drawer" onclick="toggleDrawer()">×</button>
+        </div>
+        <div class="settings-group">
+            <label id="langLabel">Мова / Language</label>
+            <select id="langSelect" onchange="changeLanguage(this.value)">
+                <option value="ua">Українська</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+                <option value="be">Беларуская</option>
+                <option value="zh">中文 (Chinese)</option>
+            </select>
+        </div>
+        <div class="settings-group">
+            <label id="themeLabel">Тема оформлення</label>
+            <select id="themeSelect" onchange="changeTheme(this.value)">
+                <option value="dark" id="themeDark">Тёмная</option>
+                <option value="grey" id="themeGrey">Серая</option>
+                <option value="light" id="themeLight">Светлая</option>
+            </select>
         </div>
     </div>
 
@@ -195,82 +326,214 @@
         const supabaseKey = 'sb_publishable_D4IyQCa0sNLO44YWVmRvYw_E1lRCAPF';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function fetchAdminProducts() {
-            const { data, error } = await supabaseClient.from('products').select('*');
-            const list = document.getElementById('adminProductList');
-            list.innerHTML = '';
+        const subcategoriesData = {
+            "Взуття": ["Кроссовки", "Кеди", "Босоніжки", "Тапки", "Шльопанці", "Черевики", "Мокасини"],
+            "Одяг": ["Худі / Свитшоты", "Футболки", "Штани / Джинси", "Куртки / Пуховики", "Шорти", "Спортивні костюми", "Кофти"],
+            "Аксесуари": ["Сумки / Рюкзаки", "Кепки / Шапки", "Годинники", "Ремені", "Окуляри", "Прикраси"]
+        };
 
-            if (error || !data || data.length === 0) {
-                list.innerHTML = '<p style="text-align:center; opacity:0.6;">Товарів поки немає</p>';
-                return;
+        const translations = {
+            ua: {
+                title: "Name - Адмін-панель",
+                header: "Додати новий товар",
+                lblTitle: "Назва товару",
+                lblPrice: "Ціна (грн)",
+                lblCat: "Тип товару",
+                lblSubcat: "Підкатегорія",
+                lblBrand: "Бренд",
+                lblSizes: "Виберіть доступні розміри",
+                lblImages: "Посилання на фото (через кому, якщо кілька)",
+                lblTg: "Посилання для замовлення в Telegram",
+                submit: "Зберегти товар",
+                success: "Товар успішно додано!",
+                settings: "Налаштування",
+                lang: "Мова / Language",
+                theme: "Тема оформлення",
+                dark: "Тёмная",
+                grey: "Серая",
+                light: "Светлая"
+            },
+            ru: {
+                title: "Name - Админ-панель",
+                header: "Добавить новый товар",
+                lblTitle: "Название товара",
+                lblPrice: "Цена (грн)",
+                lblCat: "Тип товара",
+                lblSubcat: "Подкатегория",
+                lblBrand: "Бренд",
+                lblSizes: "Выберите доступные размеры",
+                lblImages: "Ссылки на фото (через запятую)",
+                lblTg: "Ссылка для заказа в Telegram",
+                submit: "Сохранить товар",
+                success: "Товар успешно добавлен!",
+                settings: "Настройки",
+                lang: "Язык / Language",
+                theme: "Тема оформления",
+                dark: "Тёмная",
+                grey: "Серая",
+                light: "Светлая"
+            },
+            en: {
+                title: "Name - Admin Panel",
+                header: "Add New Product",
+                lblTitle: "Product Name",
+                lblPrice: "Price (UAH)",
+                lblCat: "Category",
+                lblSubcat: "Subcategory",
+                lblBrand: "Brand",
+                lblSizes: "Select available sizes",
+                lblImages: "Image URLs (comma separated)",
+                lblTg: "Telegram order link",
+                submit: "Save Product",
+                success: "Product successfully added!",
+                settings: "Settings",
+                lang: "Language",
+                theme: "Theme",
+                dark: "Dark",
+                grey: "Grey",
+                light: "Light"
+            },
+            be: {
+                title: "Name - Адмін-панэль",
+                header: "Дадаць новы тавар",
+                lblTitle: "Назва тавара",
+                lblPrice: "Кошт (грн)",
+                lblCat: "Тып тавара",
+                lblSubcat: "Падкатэгорыя",
+                lblBrand: "Брэнд",
+                lblSizes: "Выберыце даступныя памеры",
+                lblImages: "Спасылкі на фота",
+                lblTg: "Спасылка для замовы ў Telegram",
+                submit: "Захаваць тавар",
+                success: "Тавар паспяхова дададзены!",
+                settings: "Налады",
+                lang: "Мова / Language",
+                theme: "Тэма афармлення",
+                dark: "Цёмная",
+                grey: "Шэрая",
+                light: "Светлая"
+            },
+            zh: {
+                title: "Name - 管理面板",
+                header: "添加新商品",
+                lblTitle: "商品名称",
+                lblPrice: "价格 (UAH)",
+                lblCat: "商品类型",
+                lblSubcat: "子类别",
+                lblBrand: "品牌",
+                lblSizes: "选择可用尺寸",
+                lblImages: "图片链接 (逗号分隔)",
+                lblTg: "Telegram 订购链接",
+                submit: "保存商品",
+                success: "商品添加成功！",
+                settings: "设置",
+                lang: "语言 / Language",
+                theme: "主题",
+                dark: "深色",
+                grey: "灰色",
+                light: "浅色"
             }
+        };
 
-            data.forEach(p => {
-                let item = document.createElement('div');
-                item.className = 'product-item';
-                item.innerHTML = `
-                    <div class="product-info">
-                        <h3>${p.title} (${p.price} грн)</h3>
-                        <p>Бренд: ${p.brand || 'Не вказано'} | Категорія: ${p.category}</p>
-                    </div>
-                    <button class="btn-delete" onclick="deleteProduct('${p.id}')">Видалити</button>
-                `;
-                list.appendChild(item);
-            });
+        function updateSubcategories() {
+            const cat = document.getElementById('prodCategory').value;
+            const subContainer = document.getElementById('prodSubcategory');
+            subContainer.innerHTML = '';
+            
+            if (subcategoriesData[cat]) {
+                subcategoriesData[cat].forEach(sub => {
+                    subContainer.innerHTML += `<option value="${sub}">${sub}</option>`;
+                });
+            }
+            updateSizesCheckboxes();
         }
 
-        async function addProduct() {
-            const title = document.getElementById('productTitle').value.trim();
-            const price = parseFloat(document.getElementById('productPrice').value);
-            const category = document.getElementById('productCategory').value;
-            const brand = document.getElementById('productBrand').value.trim();
-            const sizesInput = document.getElementById('productSizes').value;
-            const imagesInput = document.getElementById('productImages').value;
-            const tg_link = document.getElementById('productTg').value.trim();
-            const description = document.getElementById('productDesc').value.trim();
+        function updateSizesCheckboxes() {
+            const cat = document.getElementById('prodCategory').value;
+            const sizesContainer = document.getElementById('sizesContainer');
+            sizesContainer.innerHTML = '';
 
-            if (!title || isNaN(price)) {
-                alert('Будь ласка, вкажіть назву та ціну товару!');
-                return;
+            if (cat === "Взуття") {
+                for (let i = 35; i <= 46.5; i += 0.5) {
+                    sizesContainer.innerHTML += `
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="${i}"> ${i}
+                        </label>`;
+                }
+            } else {
+                ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].forEach(s => {
+                    sizesContainer.innerHTML += `
+                        <label class="checkbox-item">
+                            <input type="checkbox" value="${s}"> ${s}
+                        </label>`;
+                });
             }
+        }
 
-            // Превращаем введенные размеры в массив строк
-            const sizes = sizesInput ? sizesInput.split(',').map(s => s.trim()).filter(s => s) : [];
-            // Превращаем ссылки на фото в массив
-            const images = imagesInput ? imagesInput.split(',').map(img => img.trim()).filter(img => img) : [];
+        function toggleDrawer() {
+            document.getElementById('settingsDrawer').classList.toggle('open');
+        }
+
+        function changeTheme(theme) {
+            document.body.setAttribute('data-theme', theme);
+        }
+
+        function changeLanguage(lang) {
+            const t = translations[lang] || translations.ua;
+            document.getElementById('pageTitle').textContent = t.title;
+            document.getElementById('formHeader').textContent = t.header;
+            document.getElementById('labelTitle').textContent = t.lblTitle;
+            document.getElementById('labelPrice').textContent = t.lblPrice;
+            document.getElementById('labelCat').textContent = t.lblCat;
+            document.getElementById('labelSubcat').textContent = t.lblSubcat;
+            document.getElementById('labelBrand').textContent = t.lblBrand;
+            document.getElementById('labelSizes').textContent = t.lblSizes;
+            document.getElementById('labelImages').textContent = t.lblImages;
+            document.getElementById('labelTg').textContent = t.lblTg;
+            document.getElementById('submitBtn').textContent = t.submit;
+            
+            document.getElementById('settingsTitle').textContent = t.settings;
+            document.getElementById('langLabel').textContent = t.lang;
+            document.getElementById('themeLabel').textContent = t.theme;
+            document.getElementById('themeDark').textContent = t.dark;
+            document.getElementById('themeGrey').textContent = t.grey;
+            document.getElementById('themeLight').textContent = t.light;
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            const lang = document.getElementById('langSelect').value;
+            const t = translations[lang] || translations.ua;
+
+            const title = document.getElementById('prodTitle').value.trim();
+            const price = parseFloat(document.getElementById('prodPrice').value);
+            const category = document.getElementById('prodCategory').value;
+            const subcategory = document.getElementById('prodSubcategory').value;
+            const brand = document.getElementById('prodBrand').value;
+            
+            const selectedSizes = Array.from(document.querySelectorAll('#sizesContainer input:checked')).map(cb => cb.value);
+            
+            const imagesRaw = document.getElementById('prodImages').value.trim();
+            const images = imagesRaw ? imagesRaw.split(',').map(s => s.trim()) : [];
+            const tg_link = document.getElementById('prodTg').value.trim();
 
             const { error } = await supabaseClient.from('products').insert([
-                { title, price, category, brand, sizes, images, tg_link, description }
+                { title, price, category, subcategory, brand, sizes: selectedSizes, images, tg_link }
             ]);
 
             if (error) {
-                alert('Помилка при додаванні: ' + error.message);
+                alert('Помилка збереження: ' + error.message);
+                console.error(error);
             } else {
-                alert('Товар успішно додано!');
-                // Очищаем форму
-                document.getElementById('productTitle').value = '';
-                document.getElementById('productPrice').value = '';
-                document.getElementById('productBrand').value = '';
-                document.getElementById('productSizes').value = '';
-                document.getElementById('productImages').value = '';
-                document.getElementById('productTg').value = '';
-                document.getElementById('productDesc').value = '';
-                fetchAdminProducts();
+                alert(t.success);
+                document.getElementById('productForm').reset();
+                updateSubcategories();
             }
         }
 
-        async function deleteProduct(id) {
-            if (!confirm('Ви впевнені, що хочете видалити цей товар?')) return;
-
-            const { error } = await supabaseClient.from('products').delete().eq('id', id);
-            if (error) {
-                alert('Помилка видалення: ' + error.message);
-            } else {
-                fetchAdminProducts();
-            }
-        }
-
-        window.onload = fetchAdminProducts;
+        window.onload = () => {
+            updateSubcategories();
+        };
     </script>
 </body>
 </html>
