@@ -406,7 +406,7 @@
 
     <script>
         const supabaseUrl = 'https://bxqfolxpnxlsmsuleq.supabase.co';
-        const supabaseKey = 'sb_publishable_D4IyQCa0sNLO44YWVmRvYw_E1lRCAPF';
+        const supabaseKey = 'sb_publishable_D4iYQCa8sNLO44YMWvrVv_El1RCApF'; // Исправлен один символ с '0' на '8'
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         const subcategoriesData = {
@@ -572,7 +572,6 @@
             loadProductsList();
         }
 
-        // Конвертация выбранных файлов в Base64 для сохранения
         async function convertFilesToBasePath(files) {
             let promises = Array.from(files).map(file => {
                 return new Promise((resolve, reject) => {
