@@ -1,1 +1,276 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін-панель - Name</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --border-color: #333333;
+            --accent-color: #ffffff;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .form-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #2a2a2a;
+            color: var(--text-color);
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .product-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-info h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .product-info p {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #4dabf7;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="index.html" class="link back-link">← Назад до магазину</a>
+        <h1>Панель керування товарами</h1>
+
+        <!-- Форма добавления товара -->
+        <div class="form-card">
+            <h2 style="font-size: 18px; margin-bottom: 15px;">Додати новий товар</h2>
+            <div class="form-group">
+                <label>Назва товару</label>
+                <input type="text" id="productTitle" placeholder="Наприклад: Кроссовки Nike Air Force">
+            </div>
+            <div class="form-group">
+                <label>Ціна (грн)</label>
+                <input type="number" id="productPrice" placeholder="2500">
+            </div>
+            <div class="form-group">
+                <label>Категорія</label>
+                <select id="productCategory">
+                    <option value="Одяг">Одяг</option>
+                    <option value="Взуття">Взуття</option>
+                    <option value="Аксесуари">Аксесуари</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Бренд</label>
+                <input type="text" id="productBrand" placeholder="Nike, Adidas тощо">
+            </div>
+            <div class="form-group">
+                <label>Розміри (через кому, наприклад: 41, 42, 42.5, M, L)</label>
+                <input type="text" id="productSizes" placeholder="38, 38.5, 39, 40">
+            </div>
+            <div class="form-group">
+                <label>Посилання на фото (через кому, якщо кілька)</label>
+                <input type="text" id="productImages" placeholder="https://site.com/photo1.jpg, https://site.com/photo2.jpg">
+            </div>
+            <div class="form-group">
+                <label>Посилання для замовлення в Telegram</label>
+                <input type="text" id="productTg" placeholder="https://t.me/your_username">
+            </div>
+            <div class="form-group">
+                <label>Опис товару</label>
+                <textarea id="productDesc" placeholder="Детальний опис товару..."></textarea>
+            </div>
+            <button class="btn-submit" onclick="addProduct()">Зберегти товар</button>
+        </div>
+
+        <!-- Список товаров для удаления -->
+        <h2 style="font-size: 18px; margin-bottom: 15px;">Існуючі товари</h2>
+        <div class="product-list" id="adminProductList">
+            <!-- Подгружается динамически -->
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://bxqfolxpnxlsmsuleq.supabase.co';
+        const supabaseKey = 'sb_publishable_D4IyQCa0sNLO44YWVmRvYw_E1lRCAPF';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function fetchAdminProducts() {
+            const { data, error } = await supabaseClient.from('products').select('*');
+            const list = document.getElementById('adminProductList');
+            list.innerHTML = '';
+
+            if (error || !data || data.length === 0) {
+                list.innerHTML = '<p style="text-align:center; opacity:0.6;">Товарів поки немає</p>';
+                return;
+            }
+
+            data.forEach(p => {
+                let item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <div class="product-info">
+                        <h3>${p.title} (${p.price} грн)</h3>
+                        <p>Бренд: ${p.brand || 'Не вказано'} | Категорія: ${p.category}</p>
+                    </div>
+                    <button class="btn-delete" onclick="deleteProduct('${p.id}')">Видалити</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function addProduct() {
+            const title = document.getElementById('productTitle').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            const category = document.getElementById('productCategory').value;
+            const brand = document.getElementById('productBrand').value.trim();
+            const sizesInput = document.getElementById('productSizes').value;
+            const imagesInput = document.getElementById('productImages').value;
+            const tg_link = document.getElementById('productTg').value.trim();
+            const description = document.getElementById('productDesc').value.trim();
+
+            if (!title || isNaN(price)) {
+                alert('Будь ласка, вкажіть назву та ціну товару!');
+                return;
+            }
+
+            // Превращаем введенные размеры в массив строк
+            const sizes = sizesInput ? sizesInput.split(',').map(s => s.trim()).filter(s => s) : [];
+            // Превращаем ссылки на фото в массив
+            const images = imagesInput ? imagesInput.split(',').map(img => img.trim()).filter(img => img) : [];
+
+            const { error } = await supabaseClient.from('products').insert([
+                { title, price, category, brand, sizes, images, tg_link, description }
+            ]);
+
+            if (error) {
+                alert('Помилка при додаванні: ' + error.message);
+            } else {
+                alert('Товар успішно додано!');
+                // Очищаем форму
+                document.getElementById('productTitle').value = '';
+                document.getElementById('productPrice').value = '';
+                document.getElementById('productBrand').value = '';
+                document.getElementById('productSizes').value = '';
+                document.getElementById('productImages').value = '';
+                document.getElementById('productTg').value = '';
+                document.getElementById('productDesc').value = '';
+                fetchAdminProducts();
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('Ви впевнені, що хочете видалити цей товар?')) return;
+
+            const { error } = await supabaseClient.from('products').delete().eq('id', id);
+            if (error) {
+                alert('Помилка видалення: ' + error.message);
+            } else {
+                fetchAdminProducts();
+            }
+        }
+
+        window.onload = fetchAdminProducts;
+    </script>
+</body>
+</html>
